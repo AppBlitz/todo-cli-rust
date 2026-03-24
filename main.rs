@@ -1,8 +1,11 @@
-use std::{env::args, path, vec};
+use std::{env::args, fmt::format, fs::File, io::Write, time, vec};
 // struct to create structe of CLI
-struct CommandCli {
-    command_principal: String,
-    argument_twos: String,
+struct Todo {
+    id: usize,
+    description: String,
+    status: String,
+    created_at: String,
+    update_at: String,
 }
 fn main() {
     let commands_principal = vec![
@@ -18,18 +21,18 @@ fn main() {
     let sub_commands = vec!["in-progres", "todo", "done"];
     let principal_argument = args().nth(1).expect("Command principal can not empty");
     let sub_command = args().nth(2).expect("sub command can not empty");
-    let args_command = CommandCli {
-        command_principal: principal_argument,
-        argument_twos: sub_command,
-    };
-    if verification_command_principal(commands_principal, &args_command.command_principal) {
-        if verification_command_secundary(sub_commands, &args_command.argument_twos) {
+    let mut file_created = create_file();
+    if verification_command_principal(commands_principal, &principal_argument) {
+        if verification_command_secundary(sub_commands, &sub_command) {
         } else {
-            if args_command.command_principal == "add" {}
+            if principal_argument == "add" {
+                file_created.write_all(sub_command.as_bytes()).unwrap();
+            }
         }
+    } else {
+        println!("[INFO] the command not found")
     }
-
-    println!("absolute path is:{:?}", get_path_absolute())
+    convert_vector_in_json();
 }
 
 fn verification_command_secundary(vector: Vec<&str>, command_secundary: &String) -> bool {
@@ -52,13 +55,16 @@ fn verification_command_principal(vector: Vec<&str>, command_initial: &String) -
     auxiliary
 }
 
-fn create_file_extension_json() -> std::path::PathBuf {
-    let path_file: path::PathBuf = get_path_absolute().into();
-    let extension = path_file.with_extension("json");
-    dbg!(extension)
+fn create_file() -> File {
+    File::create("todo.json").unwrap()
 }
 
-fn get_path_absolute() -> path::PathBuf {
-    let relative_path = path::Path::new("main.rs");
-    path::absolute(relative_path).unwrap()
+fn convert_vector_in_json() {
+    let format = format!(
+        "[
+id:{id}
+]",
+        id = 10
+    );
+    println!("{:?}", format.to_string())
 }
