@@ -70,11 +70,11 @@ fn verification_command_principal(
 
 fn create_struct_task(description_todo: String) -> Vec<Todo> {
     let utc: DateTime<Utc> = Utc::now();
-    let mut vector_tasks: Vec<Todo> = read_file();
+    let (mut vector_tasks, size_vector) = read_file();
     let todo_one: Todo = Todo {
-        id: create_id_task(&vector_tasks),
+        id: create_id_task(&vector_tasks, size_vector),
         description: description_todo,
-        status: "created".to_string(),
+        status: "todo".to_string(),
         create_at: utc,
         update_at: utc,
     };
@@ -82,19 +82,29 @@ fn create_struct_task(description_todo: String) -> Vec<Todo> {
     vector_tasks
 }
 
-fn read_file() -> Vec<Todo> {
+fn read_file() -> (Vec<Todo>, u64) {
+    let mut vector_tasks: Vec<Todo> = Vec::new();
     let path_absolut = path::absolute(Path::new("todo.json")).unwrap();
-    let read_files = fs::read_to_string(path_absolut).unwrap();
-    let vector_tasks: Vec<Todo> = serde_json::from_str(&read_files).unwrap();
-    vector_tasks
+    let metadata = fs::metadata(&path_absolut).unwrap();
+    if metadata.len() == 0 {
+        (vector_tasks, 0)
+    } else {
+        let read_files = fs::read_to_string(&path_absolut).unwrap();
+        vector_tasks = serde_json::from_str(&read_files).unwrap();
+        (vector_tasks, 0)
+    }
 }
 
-fn create_id_task(tasks_vector: &Vec<Todo>) -> u64 {
+fn create_id_task(tasks_vector: &Vec<Todo>, auxiliary_vector_tasks: u64) -> u64 {
     let mut auxiliary: u64 = 0;
-    for taks in tasks_vector {
-        if taks.id > auxiliary {
-            auxiliary = taks.id
+    if auxiliary_vector_tasks == 0 {
+        auxiliary
+    } else {
+        for taks in tasks_vector {
+            if taks.id > auxiliary {
+                auxiliary = taks.id
+            }
         }
+        auxiliary + 1
     }
-    auxiliary + 1
 }
