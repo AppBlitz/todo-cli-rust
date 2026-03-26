@@ -8,7 +8,7 @@ use std::{
     vec::Vec,
 };
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct Todo {
     id: u64,
     description: String,
@@ -29,15 +29,43 @@ fn main() {
 
     let sub_commands = vec!["done", "todo", "in-progres"];
     let commnand_principal = args().nth(1).expect("Arguement not found");
-    let sub_command = args().nth(2).expect("Sub argument not found");
+    let sub_command = args().nth(2).unwrap_or(String::from("list"));
     let mut file_created: File = create_file();
     if verification_command_principal(commands_principal, &commnand_principal) {
-        if verification_command_principal(sub_commands, &sub_command) {
-        } else {
-            let json_sase =
-                serde_json::to_string(&create_struct_task(sub_command.to_string())).unwrap();
+        if verification_command_principal(sub_commands, &sub_command) || &sub_command == "list" {
+            println!("{:?}", show_list_tasks(&sub_command))
+        } else if &commnand_principal == "add" {
+            let task_created = create_struct_task(sub_command);
+            let json_sase = serde_json::to_string(&task_created).unwrap();
             file_created.write_all(json_sase.as_bytes()).unwrap()
+        } else if &commnand_principal == "update" {
+        } else if &commnand_principal == "mark-in-progress" {
+        } else if &commnand_principal == "mark-done" {
         }
+    }
+}
+
+fn show_list_tasks(status_list: &String) {
+    let lists_tasks: Vec<Todo> = list_tasks(status_list);
+    for show_list in lists_tasks {
+        println!("{:?}", show_list)
+    }
+}
+
+fn list_tasks(type_list: &String) -> Vec<Todo> {
+    let (tasks_lists, size_tasks) = read_file();
+    let mut tasks_list: Vec<Todo> = Vec::new();
+    if size_tasks == 0 {
+        tasks_lists
+    } else if type_list != "list" {
+        for lists in tasks_lists {
+            if lists.status == *type_list {
+                tasks_list.push(lists);
+            }
+        }
+        tasks_list
+    } else {
+        tasks_lists
     }
 }
 
@@ -91,7 +119,7 @@ fn read_file() -> (Vec<Todo>, u64) {
     } else {
         let read_files = fs::read_to_string(&path_absolut).unwrap();
         vector_tasks = serde_json::from_str(&read_files).unwrap();
-        (vector_tasks, 0)
+        (vector_tasks, metadata.len())
     }
 }
 
