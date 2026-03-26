@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use serde_json::from_str;
 use std::{
     env::args,
     fs::{self, File, OpenOptions},
@@ -36,13 +37,29 @@ fn main() {
             println!("{:?}", show_list_tasks(&sub_command))
         } else if &commnand_principal == "add" {
             let task_created = create_struct_task(sub_command);
-            let json_sase = serde_json::to_string(&task_created).unwrap();
-            file_created.write_all(json_sase.as_bytes()).unwrap()
+            save_tasks(task_created, &mut file_created);
         } else if &commnand_principal == "update" {
         } else if &commnand_principal == "mark-in-progress" {
         } else if &commnand_principal == "mark-done" {
+            mark_done_tasks(from_str(&sub_command).unwrap(), &mut file_created);
         }
     }
+}
+
+fn mark_done_tasks(id_task: u64, file: &mut File) {
+    let (mut vector_tasks, _) = read_file();
+    for task in &mut vector_tasks {
+        if task.id == id_task {
+            task.status = "mark-done".to_string();
+            task.update_at = Utc::now()
+        }
+    }
+    save_tasks(vector_tasks, file);
+}
+
+fn save_tasks(tasks: Vec<Todo>, file: &mut File) {
+    let json_sase = serde_json::to_string(&tasks).unwrap();
+    file.write_all(json_sase.as_bytes()).unwrap()
 }
 
 fn show_list_tasks(status_list: &String) {
