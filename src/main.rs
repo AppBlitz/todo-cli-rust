@@ -29,7 +29,7 @@ fn main() {
     ];
 
     let sub_commands = vec!["done", "todo", "in-progres"];
-    let commnand_principal = args().nth(1).expect("Arguement not found");
+    let commnand_principal = args().nth(1).expect("Argument not found");
     let sub_command = args().nth(2).unwrap_or(String::from("list"));
     let mut file_created: File = create_file();
     if verification_command_principal(commands_principal, &commnand_principal) {
@@ -39,19 +39,60 @@ fn main() {
             let task_created = create_struct_task(sub_command);
             save_tasks(task_created, &mut file_created);
         } else if &commnand_principal == "update" {
+            let command_description = args().nth(3).unwrap();
+            modification_description(
+                from_str(&sub_command).unwrap(),
+                &command_description,
+                &mut file_created,
+            );
         } else if &commnand_principal == "mark-in-progress" {
+            mark_in_progress_tasks(from_str(&sub_command).unwrap(), &mut file_created);
         } else if &commnand_principal == "mark-done" {
             mark_done_tasks(from_str(&sub_command).unwrap(), &mut file_created);
         }
     }
 }
 
+fn modification_description(id_task: u64, description_task: &str, file: &mut File) {
+    let (mut vector_tasks, _) = read_file();
+    for task in &mut vector_tasks {
+        if task.id == id_task {
+            task.description = description_task.to_string();
+            task.update_at = Utc::now();
+        }
+    }
+    save_tasks(vector_tasks, file);
+}
+
 fn mark_done_tasks(id_task: u64, file: &mut File) {
     let (mut vector_tasks, _) = read_file();
     for task in &mut vector_tasks {
         if task.id == id_task {
-            task.status = "mark-done".to_string();
+            task.status = String::from("done");
             task.update_at = Utc::now()
+        }
+    }
+    save_tasks(vector_tasks, file);
+}
+
+fn mark_in_progress_tasks(id_task: u64, file: &mut File) {
+    let (mut vector_tasks, _) = read_file();
+    for task in &mut vector_tasks {
+        if task.id == id_task {
+            task.status = String::from("in-progress");
+            task.update_at = Utc::now();
+        }
+    }
+    save_tasks(vector_tasks, file);
+}
+
+fn mark_todo_tasks(id_task: u64, file: &mut File) {
+    let (mut vector_tasks, _) = read_file();
+
+    for task in &mut vector_tasks {
+        if task.id == id_task {
+            task.status = String::from("todo");
+            task.update_at = Utc::now();
         }
     }
     save_tasks(vector_tasks, file);
