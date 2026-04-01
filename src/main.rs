@@ -49,6 +49,8 @@ fn main() {
             mark_in_progress_tasks(from_str(&sub_command).unwrap(), &mut file_created);
         } else if &commnand_principal == "mark-done" {
             mark_done_tasks(from_str(&sub_command).unwrap(), &mut file_created);
+        } else {
+            delete_task_for_id(from_str(&sub_command).unwrap(), &mut create_file());
         }
     }
 }
@@ -62,6 +64,22 @@ fn modification_description(id_task: u64, description_task: &str, file: &mut Fil
         }
     }
     save_tasks(vector_tasks, file);
+}
+
+fn delete_task_for_id(id_task: u64, file: &mut File) {
+    let (vector_tasks, _) = read_file();
+    let mut tasks: Vec<Todo> = Vec::new();
+    for task in vector_tasks {
+        if task.id != id_task {
+            tasks.push(task);
+        }
+    }
+    std::fs::OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .open("todo.json")
+        .unwrap();
+    save_tasks(tasks, file);
 }
 
 fn mark_done_tasks(id_task: u64, file: &mut File) {
