@@ -4,6 +4,11 @@ This project is based on a challenge from roadmap.sh:
 [ fileTask Tracker Challenge - roadmap.sh](https://roadmap.sh/projects/task-tracker)
 
 
+```bash
+https://github.com/AppBlitz/todo-cli-rust.git
+```
+
+
 ```cargo
 #Create new task
 cargo run -- add "<description task>"
