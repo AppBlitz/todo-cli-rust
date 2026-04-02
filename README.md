@@ -5,7 +5,7 @@ This project is based on a challenge from roadmap.sh:
 
 
 ```bash
-https://github.com/AppBlitz/todo-cli-rust.git
+git clone https://github.com/AppBlitz/todo-cli-rust.git
 ```
 
 
