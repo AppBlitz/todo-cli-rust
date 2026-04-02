@@ -32,10 +32,10 @@ fn main() {
                 .alias("a")
                 .arg(
                     Arg::new("task")
-                        .help("Description of task")
+                        .help("Description")
                         .required(false)
-                        .help("<description task> ")
-                        .value_name("string"),
+                        .help(r#"Task description (e.g "buy milk")"#)
+                        .value_name("description"),
                 )
                 .version("1.0.2"),
         )
@@ -44,19 +44,24 @@ fn main() {
                 .alias("l")
                 .arg(
                     Arg::new("status")
-                        .help("./target/release/todo-cli-rust list <todo | done | Inprogress > ")
+                        .help("status of task ( e.g todo) ")
                         .required(false)
-                        .value_parser(["todo", "done", "InProgress"]),
+                        .value_parser(["todo", "done", "InProgress"])
+                        .value_name("status"),
                 )
                 .version("1.0.2"),
         )
         .subcommand(
             Command::new("update")
-                .arg(Arg::new("id_task").value_name("number").help(" <id>"))
+                .arg(
+                    Arg::new("id_task")
+                        .value_name("id")
+                        .help(" if of task ( e.g 0)"),
+                )
                 .arg(
                     Arg::new("description_tasks")
-                        .value_name("string")
-                        .help("./target/release/todo-cli-rust update <id task> <description task>"),
+                        .value_name("description")
+                        .help(r#" description task  ( e.g "buy list kitchend")"#),
                 )
                 .version("1.0.2"),
         )
@@ -65,8 +70,8 @@ fn main() {
                 .alias("d")
                 .arg(
                     Arg::new("task_id_delete")
-                        .help("<id task>")
-                        .value_name("number")
+                        .help("id of task delete ( e.g 0)")
+                        .value_name("id")
                         .required(false),
                 )
                 .version("1.0.2")
@@ -77,8 +82,8 @@ fn main() {
                 .arg(
                     Arg::new("id")
                         .required(false)
-                        .help("mark-done <status>")
-                        .value_name("status tasks"),
+                        .help("id of task ( e.g 0)")
+                        .value_name("id"),
                 )
                 .about("Mark one task in done")
                 .version("1.0.1"),
@@ -87,9 +92,9 @@ fn main() {
             Command::new("mark-in-progress")
                 .arg(
                     Arg::new("id")
-                        .help("<status>")
+                        .help(" id of task ( e.g 0)")
                         .required(false)
-                        .value_name("status tasks"),
+                        .value_name("id"),
                 )
                 .about("Mark one task in progress")
                 .version("1.0.1"),
@@ -99,9 +104,9 @@ fn main() {
                 .about("Mark one taks in todo")
                 .arg(
                     Arg::new("id")
-                        .help(" <status>")
+                        .help("id of task ( e.g 0) ")
                         .required(false)
-                        .value_name("status tasks"),
+                        .value_name("id"),
                 )
                 .version("1.0.1"),
         )
