@@ -34,7 +34,7 @@ fn main() {
                     Arg::new("task")
                         .help("Description of task")
                         .required(false)
-                        .help("./target/release/todo-cli-rust add <description task> ")
+                        .help("<description task> ")
                         .value_name("string"),
                 )
                 .version("1.0.2"),
@@ -52,11 +52,7 @@ fn main() {
         )
         .subcommand(
             Command::new("update")
-                .arg(
-                    Arg::new("id_task")
-                        .value_name("number")
-                        .help("./target/release/todo-cli-rust update <id>"),
-                )
+                .arg(Arg::new("id_task").value_name("number").help(" <id>"))
                 .arg(
                     Arg::new("description_tasks")
                         .value_name("string")
@@ -69,7 +65,7 @@ fn main() {
                 .alias("d")
                 .arg(
                     Arg::new("task_id_delete")
-                        .help("cargo run -- delete <id task>")
+                        .help("<id task>")
                         .value_name("number")
                         .required(false),
                 )
@@ -91,7 +87,7 @@ fn main() {
             Command::new("mark-in-progress")
                 .arg(
                     Arg::new("id")
-                        .help("./target/release/todo-cli-rust mark-in-progress <status>")
+                        .help("<status>")
                         .required(false)
                         .value_name("status tasks"),
                 )
@@ -103,7 +99,7 @@ fn main() {
                 .about("Mark one taks in todo")
                 .arg(
                     Arg::new("id")
-                        .help("./target/release/todo-cli-rust mark-todo <status>")
+                        .help(" <status>")
                         .required(false)
                         .value_name("status tasks"),
                 )
