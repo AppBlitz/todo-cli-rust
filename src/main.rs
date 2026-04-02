@@ -81,7 +81,7 @@ fn main() {
                 .arg(
                     Arg::new("id")
                         .required(false)
-                        .help("mark-done <id tasks>")
+                        .help("mark-done <status>")
                         .value_name("status tasks"),
                 )
                 .about("Mark one task in done")
@@ -91,7 +91,7 @@ fn main() {
             Command::new("mark-in-progress")
                 .arg(
                     Arg::new("id")
-                        .help("mark-in-progress <id tasks>")
+                        .help("mark-in-progress <status>")
                         .required(false)
                         .value_name("status tasks"),
                 )
@@ -103,7 +103,7 @@ fn main() {
                 .about("Mark one taks in todo")
                 .arg(
                     Arg::new("id")
-                        .help("mark-todo <id tasks>")
+                        .help("mark-todo <status>")
                         .required(false)
                         .value_name("status tasks"),
                 )
@@ -189,8 +189,8 @@ fn main() {
                     Err(_) => eprintln!(
                         "{}",
                         format_error_command(
-                            String::from("Description of task not found"),
-                            String::from("Value not cannot be null"),
+                            String::from("Status not search"),
+                            String::from("Status of task not allowed"),
                             String::from("use: cargo run -- help update")
                         )
                     ),
@@ -205,8 +205,8 @@ fn main() {
                     Err(_) => eprintln!(
                         "{}",
                         format_error_command(
-                            String::from("Invalid task ID"),
-                            String::from("The provided value is not a valid number"),
+                            String::from("Invalid status tasks"),
+                            String::from("Status task not allowed"),
                             String::from("The <id> must be a numeric value (e.g. 0,1, 2, 3)")
                         )
                     ),
