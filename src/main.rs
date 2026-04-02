@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 use clap::{Arg, Command};
 use serde::{Deserialize, Serialize};
 use std::{
+    format,
     fs::{self, File, OpenOptions},
     io::Write,
     path::{self, Path},
@@ -29,40 +30,60 @@ fn main() {
         .subcommand(
             Command::new("add")
                 .alias("a")
-                .arg(Arg::new("task").help("Description of task").required(false))
-                .version("1.0.1"),
+                .arg(
+                    Arg::new("task")
+                        .help("Description of task")
+                        .required(false)
+                        .help("cargo run -- add <description task> ")
+                        .value_name("string"),
+                )
+                .version("1.0.2"),
         )
         .subcommand(
             Command::new("list")
                 .alias("l")
                 .arg(
                     Arg::new("status")
-                        .help("Status of task")
+                        .help("cargo run -- list <todo | done | Inprogress > ")
                         .required(false)
                         .value_parser(["todo", "done", "InProgress"]),
                 )
-                .version("1.0.1"),
+                .version("1.0.2"),
         )
         .subcommand(
             Command::new("update")
-                .arg(Arg::new("id_task"))
-                .arg(Arg::new("description_tasks"))
-                .version("1.0.1"),
+                .arg(
+                    Arg::new("id_task")
+                        .value_name("number")
+                        .help("cargo run -- update <id>"),
+                )
+                .arg(
+                    Arg::new("description_tasks")
+                        .value_name("string")
+                        .help("cargo run -- update <id task> <description task>"),
+                )
+                .version("1.0.2"),
         )
         .subcommand(
             Command::new("delete")
                 .alias("d")
                 .arg(
                     Arg::new("task_id_delete")
-                        .help("Id of taks for deleting")
+                        .help("cargo run -- delete <id task>")
+                        .value_name("number")
                         .required(false),
                 )
-                .version("1.0.1")
+                .version("1.0.2")
                 .about("delete taks for id "),
         )
         .subcommand(
             Command::new("mark-done")
-                .arg(Arg::new("id").required(false).help("mark-done <id tasks>"))
+                .arg(
+                    Arg::new("id")
+                        .required(false)
+                        .help("mark-done <id tasks>")
+                        .value_name("status tasks"),
+                )
                 .about("Mark one task in done")
                 .version("1.0.1"),
         )
@@ -71,7 +92,8 @@ fn main() {
                 .arg(
                     Arg::new("id")
                         .help("mark-in-progress <id tasks>")
-                        .required(false),
+                        .required(false)
+                        .value_name("status tasks"),
                 )
                 .about("Mark one task in progress")
                 .version("1.0.1"),
@@ -79,7 +101,12 @@ fn main() {
         .subcommand(
             Command::new("mark-todo")
                 .about("Mark one taks in todo")
-                .arg(Arg::new("id").help("mark-todo <id tasks>").required(false))
+                .arg(
+                    Arg::new("id")
+                        .help("mark-todo <id tasks>")
+                        .required(false)
+                        .value_name("status tasks"),
+                )
                 .version("1.0.1"),
         )
         .get_matches();
@@ -88,7 +115,14 @@ fn main() {
     match result.subcommand() {
         Some(("add", sub_m)) => {
             match sub_m.get_one::<String>("task") {
-                None => println!("Description task not found"),
+                None => eprintln!(
+                    "{}",
+                    format_error_command(
+                        String::from("Invalid description"),
+                        String::from("Tha value of description be string and not null "),
+                        String::from("use: cargo run -- help <value>")
+                    )
+                ),
                 Some(description_tasks) => {
                     let task_created = create_struct_task(description_tasks);
                     save_tasks(task_created, &mut file_created);
@@ -120,7 +154,14 @@ fn main() {
             Some(id_task) => {
                 match id_task.parse() {
                     Ok(value) => delete_task_for_id(value, &mut create_file()),
-                    Err(err) => eprintln!("{:?}, {:?}", "Value not allowed", err),
+                    Err(_) => eprintln!(
+                        "{}",
+                        format_error_command(
+                            String::from("Invalid task ID"),
+                            String::from("The provided value is not a valid number"),
+                            String::from("use: cargo run -- help <value>")
+                        )
+                    ),
                 };
             }
         },
@@ -129,7 +170,14 @@ fn main() {
             Some(id_task) => {
                 match id_task.parse() {
                     Ok(value) => mark_done_tasks(value, &mut create_file()),
-                    Err(err) => eprintln!("{:?}, {:?}", "Value not allowed", err),
+                    Err(_) => eprintln!(
+                        "{}",
+                        format_error_command(
+                            String::from("The status not allowed"),
+                            String::from("The status not be null o different"),
+                            String::from("use: cargo run -- help <value>")
+                        )
+                    ),
                 };
             }
         },
@@ -138,7 +186,14 @@ fn main() {
             Some(id_task) => {
                 match id_task.parse() {
                     Ok(value) => mark_todo_tasks(value, &mut create_file()),
-                    Err(err) => eprintln!("{:?}, {:?}", "Value not allowed", err),
+                    Err(_) => eprintln!(
+                        "{}",
+                        format_error_command(
+                            String::from("Description of task not found"),
+                            String::from("Value not cannot be null"),
+                            String::from("use: cargo run -- help update")
+                        )
+                    ),
                 };
             }
         },
@@ -147,24 +202,52 @@ fn main() {
             Some(id_task) => {
                 match id_task.parse() {
                     Ok(value) => mark_in_progress_tasks(value, &mut create_file()),
-                    Err(err) => eprintln!("{:?}, {:?}", "Value not allowed", err),
+                    Err(_) => eprintln!(
+                        "{}",
+                        format_error_command(
+                            String::from("Invalid task ID"),
+                            String::from("The provided value is not a valid number"),
+                            String::from("The <id> must be a numeric value (e.g. 0,1, 2, 3)")
+                        )
+                    ),
                 };
             }
         },
         Some(("update", sub_m)) => match sub_m.get_one::<String>("id_task") {
             None => {
-                eprint!("Is necessary id of tasks")
+                eprintln!(
+                    "{}",
+                    format_error_command(
+                        String::from("Invalid search value"),
+                        String::from("Value cannot be null"),
+                        String::from("Use: cargo run -- help <VALUE>")
+                    )
+                )
             }
             Some(id_tasks) => match sub_m.get_one::<String>("description_tasks") {
                 None => {
-                    eprint!("Is necessary description of tasks")
+                    eprintln!(
+                        "{}",
+                        format_error_command(
+                            String::from("Description of task not found"),
+                            String::from("Value not cannot be null"),
+                            String::from("use: cargo run -- help update")
+                        )
+                    )
                 }
                 Some(description) => match id_tasks.parse() {
                     Ok(task_id) => {
                         modification_description(task_id, description, &mut create_file());
                     }
                     Err(_) => {
-                        eprintln!("Thi value of id not valid")
+                        eprintln!(
+                            "{}",
+                            format_error_command(
+                                String::from("Invalid task ID"),
+                                String::from("The provided value is not a valid number"),
+                                String::from("The <id> must be a numeric value (e.g. 0,1, 2, 3)")
+                            )
+                        )
                     }
                 },
             },
@@ -312,4 +395,11 @@ fn create_id_task(tasks_vector: &Vec<Todo>, auxiliary_vector_tasks: u64) -> usiz
         }
         auxiliary + 1
     }
+}
+
+fn format_error_command(message: String, erro: String, help: String) -> String {
+    format!(
+        r#"{{"Message":"{}","error":"{}","help":"{}"}}"#,
+        message, erro, help
+    )
 }
