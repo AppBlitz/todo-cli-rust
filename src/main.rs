@@ -56,7 +56,7 @@ fn main() {
                 .arg(
                     Arg::new("id_task")
                         .value_name("id")
-                        .help(" if of task ( e.g 0)"),
+                        .help(" id of task ( e.g 0)"),
                 )
                 .arg(
                     Arg::new("description_tasks")
