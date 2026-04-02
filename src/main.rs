@@ -34,7 +34,7 @@ fn main() {
                     Arg::new("task")
                         .help("Description of task")
                         .required(false)
-                        .help("cargo run -- add <description task> ")
+                        .help("./target/release/todo-cli-rust add <description task> ")
                         .value_name("string"),
                 )
                 .version("1.0.2"),
@@ -44,7 +44,7 @@ fn main() {
                 .alias("l")
                 .arg(
                     Arg::new("status")
-                        .help("cargo run -- list <todo | done | Inprogress > ")
+                        .help("./target/release/todo-cli-rust list <todo | done | Inprogress > ")
                         .required(false)
                         .value_parser(["todo", "done", "InProgress"]),
                 )
@@ -55,12 +55,12 @@ fn main() {
                 .arg(
                     Arg::new("id_task")
                         .value_name("number")
-                        .help("cargo run -- update <id>"),
+                        .help("./target/release/todo-cli-rust update <id>"),
                 )
                 .arg(
                     Arg::new("description_tasks")
                         .value_name("string")
-                        .help("cargo run -- update <id task> <description task>"),
+                        .help("./target/release/todo-cli-rust update <id task> <description task>"),
                 )
                 .version("1.0.2"),
         )
@@ -91,7 +91,7 @@ fn main() {
             Command::new("mark-in-progress")
                 .arg(
                     Arg::new("id")
-                        .help("mark-in-progress <status>")
+                        .help("./target/release/todo-cli-rust mark-in-progress <status>")
                         .required(false)
                         .value_name("status tasks"),
                 )
@@ -103,7 +103,7 @@ fn main() {
                 .about("Mark one taks in todo")
                 .arg(
                     Arg::new("id")
-                        .help("mark-todo <status>")
+                        .help("./target/release/todo-cli-rust mark-todo <status>")
                         .required(false)
                         .value_name("status tasks"),
                 )
@@ -120,7 +120,7 @@ fn main() {
                     format_error_command(
                         String::from("Invalid description"),
                         String::from("Tha value of description be string and not null "),
-                        String::from("use: cargo run -- help <value>")
+                        String::from("use:./target/release/todo-cli-rusth --help <value>")
                     )
                 ),
                 Some(description_tasks) => {
@@ -159,7 +159,7 @@ fn main() {
                         format_error_command(
                             String::from("Invalid task ID"),
                             String::from("The provided value is not a valid number"),
-                            String::from("use: cargo run -- help <value>")
+                            String::from("use: ./target/release/todo-cli-rust --help <value>")
                         )
                     ),
                 };
@@ -175,7 +175,7 @@ fn main() {
                         format_error_command(
                             String::from("The status not allowed"),
                             String::from("The status not be null o different"),
-                            String::from("use: cargo run -- help <value>")
+                            String::from("use:./target/release/todo-cli-rust --help <value>")
                         )
                     ),
                 };
@@ -191,7 +191,7 @@ fn main() {
                         format_error_command(
                             String::from("Status not search"),
                             String::from("Status of task not allowed"),
-                            String::from("use: cargo run -- help update")
+                            String::from("use:./target/release/todo-cli-rust --help update")
                         )
                     ),
                 };
@@ -207,7 +207,7 @@ fn main() {
                         format_error_command(
                             String::from("Invalid status tasks"),
                             String::from("Status task not allowed"),
-                            String::from("The <id> must be a numeric value (e.g. 0,1, 2, 3)")
+                            String::from("use: ./target/release/todo-cli-rust --help <value>")
                         )
                     ),
                 };
@@ -220,7 +220,7 @@ fn main() {
                     format_error_command(
                         String::from("Invalid search value"),
                         String::from("Value cannot be null"),
-                        String::from("Use: cargo run -- help <VALUE>")
+                        String::from("Use:./target/release/todo-cli-rust --help <VALUE>")
                     )
                 )
             }
@@ -231,7 +231,7 @@ fn main() {
                         format_error_command(
                             String::from("Description of task not found"),
                             String::from("Value not cannot be null"),
-                            String::from("use: cargo run -- help update")
+                            String::from("use:./target/release/todo-cli-rust --help <value>")
                         )
                     )
                 }
