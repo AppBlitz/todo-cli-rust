@@ -4,38 +4,97 @@ This project is based on a challenge from roadmap.sh:
 [ fileTask Tracker Challenge - roadmap.sh](https://roadmap.sh/projects/task-tracker)
 
 
+# Installation
+
+## Clone repository 
 ```bash
-git clone https://github.com/AppBlitz/todo-cli-rust.git
+git clone git clone https://github.com/AppBlitz/todo-cli-rust.git 
+cd todo-cli-rust
 ```
 
 
-```cargo
-#Create new task
-cargo run -- add "<description task>"
-
-# update description task for id
-cargo run -- update <id_task> "<description task>"
-
-# delete task for id
-cargo run -- delete <id_task>
-
-# show all tasks created
-cargo run -- list
-
-# task in progress
-cargo run -- mark-in-progress "<id_task>"
-
-# task in done
-cargo run -- mark-done "<id task>"
-
-# show all list from status is done
-cargo run -- list done
-
-# show all list from status is todo
-cargo run -- list todo
-
-# show all list from status is in-progress
-cargo run -- in-progress
+## Build the project using Cargo:
+```bash
+cargo build --release
 ```
 
-All implementation and source code in this repository were written by me.
+## Run executable:
+
+```bash
+./target/release/todo-cli-rust 
+```
+
+
+# Usage
+
+
+## create new tasks:
+ for creating new task use command *add*:
+This command receives the task description this is *<description tasks>*
+
+```bash
+./target/release/todo-cli-rust add <description tasks>
+```
+
+
+## list all tasks:
+for list all tasks use *list* command:
+```bash
+./target/release/todo-cli-rust list
+```
+
+### list tasks for status
+
+#### status todo
+
+```bash
+ ./target/release/todo-cli-rust list todo
+```
+#### list tasks status done
+
+```bash
+ ./target/release/todo-cli-rust list done
+```
+
+#### Lists for status in progress
+
+```bash
+ ./target/release/todo-cli-rust list inprogress
+```
+
+
+## delete task
+delete task,use *delete* command, receive id of task
+
+```bash
+ ./target/release/todo-cli-rust delete <id>
+```
+
+
+## Modification status one tasks
+
+### done 
+receive id task
+```bash
+ ./target/release/todo-cli-rust mark-done <id>
+```
+
+### todo
+
+```bash
+ ./target/release/todo-cli-rust mark-todo <id>
+```
+
+### in progress
+```bash
+ ./target/release/todo-cli-rust mark-in-progress <id>
+```
+
+
+
+
+
+
+
+
+
