@@ -1,8 +1,22 @@
 use std::{
-    fs::{File, OpenOptions},
-    path::PathBuf,
+    fs::{File, OpenOptions, exists, remove_file},
+    path::{PathBuf, absolute},
 };
-pub fn create_file() {}
+pub fn create_file(name_file: &String) -> File {
+    let path_file: PathBuf = absolute(name_file).unwrap();
+    if !exists(&path_file).unwrap() {
+        File::create_new(&path_file).unwrap()
+    } else {
+        open_file(path_file)
+    }
+}
+
+pub fn search_path_absolute(name_file: &String) -> PathBuf {
+    if !exists(name_file).unwrap() {
+        create_file(name_file);
+    }
+    absolute(name_file).unwrap()
+}
 
 pub fn truncate_file(path_file: PathBuf) {
     let result = OpenOptions::new()
@@ -26,3 +40,7 @@ pub fn open_file(path_file: PathBuf) -> File {
 }
 
 pub fn search_file() {}
+
+pub fn delete_file(name_file: &String) {
+    remove_file(name_file).unwrap()
+}
