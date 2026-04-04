@@ -4,7 +4,7 @@ mod services;
 mod util;
 use crate::models::model_task::Todo;
 use crate::services::{
-    create_file::{open_file, truncate_file},
+    create_file::{create_file, delete_file, open_file, search_path_absolute, truncate_file},
     error_formats::format_error_command,
     tools::create_id_task,
 };
@@ -19,10 +19,20 @@ use std::{
 };
 
 fn main() {
+    let file_name: String = String::from("task.json");
+    let mut file_created: File = create_file(&file_name);
+
     let result = Command::new("task-cli")
         .subcommand(
             Command::new("add")
                 .alias("a")
+                // .arg(
+                //     Arg::new("file")
+                //         .alias("f")
+                //         .long("file")
+                //         .required(false)
+                //         .value_name("name_file"),
+                // )
                 .arg(
                     Arg::new("task")
                         .help("Description")
@@ -105,7 +115,6 @@ fn main() {
         )
         .get_matches();
 
-    let mut file_created = create_file();
     match result.subcommand() {
         Some(("add", sub_m)) => {
             match sub_m.get_one::<String>("task") {
@@ -118,25 +127,25 @@ fn main() {
                     )
                 ),
                 Some(description_tasks) => {
-                    let task_created = create_struct_task(description_tasks);
+                    let task_created = create_struct_task(description_tasks, file_name);
                     save_tasks(task_created, &mut file_created);
                 }
             };
         }
         Some(("list", sub_m)) => match sub_m.get_one::<String>("status") {
             None => {
-                let (vector_tasks, _) = read_file();
+                let (vector_tasks, _) = read_file(&file_name);
                 println!("{:?}", vector_tasks)
             }
             Some(status_tasks) => match status_tasks.as_str() {
                 "todo" => {
-                    search_status_tasks(StatusTaks::Todo);
+                    search_status_tasks(StatusTaks::Todo, &file_name);
                 }
                 "done" => {
-                    search_status_tasks(StatusTaks::Done);
+                    search_status_tasks(StatusTaks::Done, &file_name);
                 }
                 "InProgress" => {
-                    search_status_tasks(StatusTaks::InProgress);
+                    search_status_tasks(StatusTaks::InProgress, &file_name);
                 }
                 _ => {
                     println!("{:?}", "Value not allowed")
@@ -147,7 +156,7 @@ fn main() {
             None => {}
             Some(id_task) => {
                 match id_task.parse() {
-                    Ok(value) => delete_task_for_id(value, &mut create_file()),
+                    Ok(value) => delete_task_for_id(value, &mut file_created, &file_name),
                     Err(_) => eprintln!(
                         "{}",
                         format_error_command(
@@ -163,7 +172,7 @@ fn main() {
             None => {}
             Some(id_task) => {
                 match id_task.parse() {
-                    Ok(value) => mark_done_tasks(value, &mut create_file()),
+                    Ok(value) => mark_done_tasks(value, &mut file_created, &file_name),
                     Err(_) => eprintln!(
                         "{}",
                         format_error_command(
@@ -179,7 +188,7 @@ fn main() {
             None => {}
             Some(id_task) => {
                 match id_task.parse() {
-                    Ok(value) => mark_todo_tasks(value, &mut create_file()),
+                    Ok(value) => mark_todo_tasks(value, &mut file_created, &file_name),
                     Err(_) => eprintln!(
                         "{}",
                         format_error_command(
@@ -195,7 +204,7 @@ fn main() {
             None => {}
             Some(id_task) => {
                 match id_task.parse() {
-                    Ok(value) => mark_in_progress_tasks(value, &mut create_file()),
+                    Ok(value) => mark_in_progress_tasks(value, &mut file_created, &file_name),
                     Err(_) => eprintln!(
                         "{}",
                         format_error_command(
@@ -231,7 +240,12 @@ fn main() {
                 }
                 Some(description) => match id_tasks.parse() {
                     Ok(task_id) => {
-                        modification_description(task_id, description, &mut create_file());
+                        modification_description(
+                            task_id,
+                            description,
+                            &mut file_created,
+                            &file_name,
+                        );
                     }
                     Err(_) => {
                         eprintln!(
@@ -252,8 +266,8 @@ fn main() {
     }
 }
 
-fn search_status_tasks(status: StatusTaks) {
-    let (vector_tasks, _) = read_file();
+fn search_status_tasks(status: StatusTaks, name_file: &String) {
+    let (vector_tasks, _) = read_file(name_file);
     let mut vector_aux: Vec<Todo> = Vec::new();
     for task in vector_tasks {
         if task.status == status {
@@ -263,8 +277,13 @@ fn search_status_tasks(status: StatusTaks) {
     println!("{:?}", vector_aux)
 }
 
-fn modification_description(id_task: usize, description_task: &str, file: &mut File) {
-    let (mut vector_tasks, _) = read_file();
+fn modification_description(
+    id_task: usize,
+    description_task: &str,
+    file: &mut File,
+    name_file: &String,
+) {
+    let (mut vector_tasks, _) = read_file(name_file);
     for task in &mut vector_tasks {
         if task.id == id_task {
             task.description = description_task.to_string();
@@ -272,15 +291,13 @@ fn modification_description(id_task: usize, description_task: &str, file: &mut F
         }
     }
     {
-        let path_file = String::from("todo.json");
-
-        // truncate_file();
+        truncate_file(search_path_absolute(name_file));
     };
     save_tasks(vector_tasks, file);
 }
 
-fn delete_task_for_id(id_task: usize, file: &mut File) {
-    let (vector_tasks, _) = read_file();
+fn delete_task_for_id(id_task: usize, file: &mut File, name_file: &String) {
+    let (vector_tasks, _) = read_file(name_file);
     let mut tasks: Vec<Todo> = Vec::new();
     for task in vector_tasks {
         if task.id != id_task {
@@ -288,14 +305,13 @@ fn delete_task_for_id(id_task: usize, file: &mut File) {
         }
     }
     {
-        let path_file = String::from("todo.json");
-        // truncate_file(path_file);
+        truncate_file(search_path_absolute(name_file));
     };
     save_tasks(tasks, file);
 }
 
-fn mark_done_tasks(id_task: usize, file: &mut File) {
-    let (mut vector_tasks, _) = read_file();
+fn mark_done_tasks(id_task: usize, file: &mut File, name_file: &String) {
+    let (mut vector_tasks, _) = read_file(name_file);
     for task in &mut vector_tasks {
         if task.id == id_task {
             task.status = StatusTaks::Done;
@@ -303,14 +319,13 @@ fn mark_done_tasks(id_task: usize, file: &mut File) {
         }
     }
     {
-        let path_file = String::from("todo.json");
-        // truncate_file(jk);
+        truncate_file(search_path_absolute(name_file));
     };
     save_tasks(vector_tasks, file);
 }
 
-fn mark_in_progress_tasks(id_task: usize, file: &mut File) {
-    let (mut vector_tasks, _) = read_file();
+fn mark_in_progress_tasks(id_task: usize, file: &mut File, name_file: &String) {
+    let (mut vector_tasks, _) = read_file(name_file);
     for task in &mut vector_tasks {
         if task.id == id_task {
             task.status = StatusTaks::InProgress;
@@ -318,14 +333,13 @@ fn mark_in_progress_tasks(id_task: usize, file: &mut File) {
         }
     }
     {
-        let path_file = String::from("todo.json");
-        // truncate_file(jk);
+        truncate_file(search_path_absolute(name_file));
     };
     save_tasks(vector_tasks, file);
 }
 
-fn mark_todo_tasks(id_task: usize, file: &mut File) {
-    let (mut vector_tasks, _) = read_file();
+fn mark_todo_tasks(id_task: usize, file: &mut File, name_file: &String) {
+    let (mut vector_tasks, _) = read_file(name_file);
     for task in &mut vector_tasks {
         if task.id == id_task {
             task.status = StatusTaks::Todo;
@@ -333,8 +347,7 @@ fn mark_todo_tasks(id_task: usize, file: &mut File) {
         }
     }
     {
-        let path_file = String::from("todo.json");
-        // truncate_file(jk);
+        truncate_file(search_path_absolute(&name_file));
     };
     save_tasks(vector_tasks, file);
 }
@@ -344,19 +357,9 @@ fn save_tasks(tasks: Vec<Todo>, file: &mut File) {
     file.write_all(json_sase.as_bytes()).unwrap()
 }
 
-fn create_file() -> File {
-    let name_file: String = String::from("todo.json");
-    let path_file = path::absolute(Path::new(&name_file)).unwrap();
-    if !fs::exists(&path_file).unwrap() {
-        File::create_new(&path_file).unwrap()
-    } else {
-        open_file(path_file)
-    }
-}
-
-fn create_struct_task(description_todo: &String) -> Vec<Todo> {
+fn create_struct_task(description_todo: &String, name_file: String) -> Vec<Todo> {
     let utc: DateTime<Utc> = Utc::now();
-    let (mut vector_tasks, size_vector) = read_file();
+    let (mut vector_tasks, size_vector) = read_file(&name_file);
     let id_task: usize = create_id_task(&vector_tasks, size_vector);
     let todo_one: Todo = Todo {
         id: id_task,
@@ -369,9 +372,9 @@ fn create_struct_task(description_todo: &String) -> Vec<Todo> {
     vector_tasks
 }
 
-fn read_file() -> (Vec<Todo>, u64) {
+fn read_file(name_file: &String) -> (Vec<Todo>, u64) {
     let mut vector_tasks: Vec<Todo> = Vec::new();
-    let path_absolut = path::absolute(Path::new("todo.json")).unwrap();
+    let path_absolut = search_path_absolute(&name_file);
     let metadata = fs::metadata(&path_absolut).unwrap();
     if metadata.len() == 0 {
         (vector_tasks, 0)
