@@ -119,9 +119,9 @@ fn main() {
                 None => eprintln!(
                     "{}",
                     format_error_command(
-                        String::from("Invalid description"),
-                        String::from("Tha value of description be string and not null "),
-                        String::from("use:./target/release/todo-cli-rusth --help <value>")
+                        "Invalid description",
+                        "Tha value of description be string and not null ",
+                        "use:./target/release/todo-cli-rusth --help <value>"
                     )
                 ),
                 Some(description_tasks) => {
@@ -158,9 +158,9 @@ fn main() {
                     Err(_) => eprintln!(
                         "{}",
                         format_error_command(
-                            String::from("Invalid task ID"),
-                            String::from("The provided value is not a valid number"),
-                            String::from("use: ./target/release/todo-cli-rust --help <value>")
+                            "Invalid task ID",
+                            "The provided value is not a valid number",
+                            "use: ./target/release/todo-cli-rust --help <value>"
                         )
                     ),
                 };
@@ -174,9 +174,9 @@ fn main() {
                     Err(_) => eprintln!(
                         "{}",
                         format_error_command(
-                            String::from("The status not allowed"),
-                            String::from("The status not be null o different"),
-                            String::from("use:./target/release/todo-cli-rust --help <value>")
+                            "The status not allowed",
+                            "The status not be null o different",
+                            "use:./target/release/todo-cli-rust --help <value>"
                         )
                     ),
                 };
@@ -190,9 +190,9 @@ fn main() {
                     Err(_) => eprintln!(
                         "{}",
                         format_error_command(
-                            String::from("Status not search"),
-                            String::from("Status of task not allowed"),
-                            String::from("use:./target/release/todo-cli-rust --help update")
+                            "Status not search",
+                            "Status of task not allowed",
+                            "use:./target/release/todo-cli-rust --help update"
                         )
                     ),
                 };
@@ -206,9 +206,9 @@ fn main() {
                     Err(_) => eprintln!(
                         "{}",
                         format_error_command(
-                            String::from("Invalid status tasks"),
-                            String::from("Status task not allowed"),
-                            String::from("use: ./target/release/todo-cli-rust --help <value>")
+                            "Invalid status tasks",
+                            "Status task not allowed",
+                            "use: ./target/release/todo-cli-rust --help <value>"
                         )
                     ),
                 };
@@ -219,9 +219,9 @@ fn main() {
                 eprintln!(
                     "{}",
                     format_error_command(
-                        String::from("Invalid search value"),
-                        String::from("Value cannot be null"),
-                        String::from("Use:./target/release/todo-cli-rust --help <VALUE>")
+                        "Invalid search value",
+                        "Value cannot be null",
+                        "Use:./target/release/todo-cli-rust --help <VALUE>"
                     )
                 )
             }
@@ -230,9 +230,9 @@ fn main() {
                     eprintln!(
                         "{}",
                         format_error_command(
-                            String::from("Description of task not found"),
-                            String::from("Value not cannot be null"),
-                            String::from("use:./target/release/todo-cli-rust --help <value>")
+                            "Description of task not found",
+                            "Value not cannot be null",
+                            "use:./target/release/todo-cli-rust --help <value>"
                         )
                     )
                 }
@@ -244,9 +244,9 @@ fn main() {
                         eprintln!(
                             "{}",
                             format_error_command(
-                                String::from("Invalid task ID"),
-                                String::from("The provided value is not a valid number"),
-                                String::from("The <id> must be a numeric value (e.g. 0,1, 2, 3)")
+                                "Invalid task ID",
+                                "The provided value is not a valid number",
+                                "The <id> must be a numeric value (e.g. 0,1, 2, 3)"
                             )
                         )
                     }
@@ -398,7 +398,7 @@ fn create_id_task(tasks_vector: &Vec<Todo>, auxiliary_vector_tasks: u64) -> usiz
     }
 }
 
-fn format_error_command(message: String, erro: String, help: String) -> String {
+fn format_error_command(message: &str, erro: &str, help: &str) -> String {
     format!(
         r#"{{"Message":"{}","error":"{}","help":"{}"}}"#,
         message, erro, help
