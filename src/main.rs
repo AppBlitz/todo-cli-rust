@@ -1,29 +1,22 @@
+mod commands;
+mod models;
+mod services;
+mod util;
+use crate::models::model_task::Todo;
+use crate::services::{
+    create_file::{open_file, truncate_file},
+    error_formats::format_error_command,
+    tools::create_id_task,
+};
+use crate::util::enum_task::StatusTaks;
 use chrono::{DateTime, Utc};
 use clap::{Arg, Command};
-use serde::{Deserialize, Serialize};
 use std::{
-    format,
-    fs::{self, File, OpenOptions},
+    fs::{self, File},
     io::Write,
     path::{self, Path},
     vec::Vec,
 };
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-enum StatusTaks {
-    Todo,
-    InProgress,
-    Done,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Todo {
-    id: usize,
-    description: String,
-    status: StatusTaks,
-    create_at: DateTime<Utc>,
-    update_at: DateTime<Utc>,
-}
 
 fn main() {
     let result = Command::new("task-cli")
@@ -278,7 +271,11 @@ fn modification_description(id_task: usize, description_task: &str, file: &mut F
             task.update_at = Utc::now();
         }
     }
-    truncate_file(String::from("todo.json"));
+    {
+        let path_file = String::from("todo.json");
+
+        // truncate_file();
+    };
     save_tasks(vector_tasks, file);
 }
 
@@ -290,15 +287,11 @@ fn delete_task_for_id(id_task: usize, file: &mut File) {
             tasks.push(task);
         }
     }
-    truncate_file(String::from("todo.json"));
+    {
+        let path_file = String::from("todo.json");
+        // truncate_file(path_file);
+    };
     save_tasks(tasks, file);
-}
-fn truncate_file(path: String) {
-    std::fs::OpenOptions::new()
-        .write(true)
-        .truncate(true)
-        .open(path)
-        .unwrap();
 }
 
 fn mark_done_tasks(id_task: usize, file: &mut File) {
@@ -309,7 +302,10 @@ fn mark_done_tasks(id_task: usize, file: &mut File) {
             task.update_at = Utc::now();
         }
     }
-    truncate_file(String::from("todo.json"));
+    {
+        let path_file = String::from("todo.json");
+        // truncate_file(jk);
+    };
     save_tasks(vector_tasks, file);
 }
 
@@ -321,7 +317,10 @@ fn mark_in_progress_tasks(id_task: usize, file: &mut File) {
             task.update_at = Utc::now();
         }
     }
-    truncate_file(String::from("todo.json"));
+    {
+        let path_file = String::from("todo.json");
+        // truncate_file(jk);
+    };
     save_tasks(vector_tasks, file);
 }
 
@@ -333,7 +332,10 @@ fn mark_todo_tasks(id_task: usize, file: &mut File) {
             task.update_at = Utc::now();
         }
     }
-    truncate_file(String::from("todo.json"));
+    {
+        let path_file = String::from("todo.json");
+        // truncate_file(jk);
+    };
     save_tasks(vector_tasks, file);
 }
 
@@ -348,11 +350,7 @@ fn create_file() -> File {
     if !fs::exists(&path_file).unwrap() {
         File::create_new(&path_file).unwrap()
     } else {
-        OpenOptions::new()
-            .read(true)
-            .write(true)
-            .open(path_file)
-            .unwrap()
+        open_file(path_file)
     }
 }
 
@@ -382,25 +380,4 @@ fn read_file() -> (Vec<Todo>, u64) {
         vector_tasks = serde_json::from_str(&read_files).unwrap();
         (vector_tasks, metadata.len())
     }
-}
-
-fn create_id_task(tasks_vector: &Vec<Todo>, auxiliary_vector_tasks: u64) -> usize {
-    let mut auxiliary: usize = 0;
-    if auxiliary_vector_tasks == 0 {
-        auxiliary
-    } else {
-        for taks in tasks_vector {
-            if taks.id > auxiliary {
-                auxiliary = taks.id
-            }
-        }
-        auxiliary + 1
-    }
-}
-
-fn format_error_command(message: &str, erro: &str, help: &str) -> String {
-    format!(
-        r#"{{"Message":"{}","error":"{}","help":"{}"}}"#,
-        message, erro, help
-    )
 }
