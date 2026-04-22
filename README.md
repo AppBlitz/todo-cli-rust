@@ -8,7 +8,7 @@ This project is based on a challenge from roadmap.sh:
 
 ## Clone repository 
 ```bash
-git clone git clone https://github.com/AppBlitz/todo-cli-rust.git 
+ git clone https://github.com/AppBlitz/todo-cli-rust.git 
 cd todo-cli-rust
 ```
 
