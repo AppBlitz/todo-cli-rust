@@ -1,22 +1,14 @@
-mod commands;
-mod models;
-mod services;
-mod util;
-use crate::models::model_task::Todo;
-use crate::services::{
-    create_file::{create_file, delete_file, open_file, search_path_absolute, truncate_file},
-    error_formats::format_error_command,
-    tools::create_id_task,
-};
-use crate::util::enum_task::StatusTaks;
-use chrono::{DateTime, Utc};
 use clap::{Arg, Command};
-use std::{
-    fs::{self, File},
-    io::Write,
-    path::{self, Path},
-    vec::Vec,
-};
+use std::fs::File;
+use utils::services::taks::{create_struct_task, save_tasks};
+use utils::services::tools::{read_file, search_status_tasks};
+use utils::services::{create_file::create_file, error_formats::format_error_command};
+use utils::tasksf::delete_task::delete_task_for_id;
+use utils::tasksf::mark_done::mark_done_tasks;
+use utils::tasksf::mark_progress::mark_in_progress_tasks;
+use utils::tasksf::mark_todo::mark_todo_tasks;
+use utils::tasksf::modification_description::modification_description;
+use utils::util::enum_task::StatusTaks;
 
 fn main() {
     let file_name: String = String::from("task.json");
@@ -26,13 +18,6 @@ fn main() {
         .subcommand(
             Command::new("add")
                 .alias("a")
-                // .arg(
-                //     Arg::new("file")
-                //         .alias("f")
-                //         .long("file")
-                //         .required(false)
-                //         .value_name("name_file"),
-                // )
                 .arg(
                     Arg::new("task")
                         .help("Description")
@@ -263,124 +248,5 @@ fn main() {
         _ => {
             println!("commnad not found")
         }
-    }
-}
-
-fn search_status_tasks(status: StatusTaks, name_file: &String) {
-    let (vector_tasks, _) = read_file(name_file);
-    let mut vector_aux: Vec<Todo> = Vec::new();
-    for task in vector_tasks {
-        if task.status == status {
-            vector_aux.push(task);
-        }
-    }
-    println!("{:?}", vector_aux)
-}
-
-fn modification_description(
-    id_task: usize,
-    description_task: &str,
-    file: &mut File,
-    name_file: &String,
-) {
-    let (mut vector_tasks, _) = read_file(name_file);
-    for task in &mut vector_tasks {
-        if task.id == id_task {
-            task.description = description_task.to_string();
-            task.update_at = Utc::now();
-        }
-    }
-    {
-        truncate_file(search_path_absolute(name_file));
-    };
-    save_tasks(vector_tasks, file);
-}
-
-fn delete_task_for_id(id_task: usize, file: &mut File, name_file: &String) {
-    let (vector_tasks, _) = read_file(name_file);
-    let mut tasks: Vec<Todo> = Vec::new();
-    for task in vector_tasks {
-        if task.id != id_task {
-            tasks.push(task);
-        }
-    }
-    {
-        truncate_file(search_path_absolute(name_file));
-    };
-    save_tasks(tasks, file);
-}
-
-fn mark_done_tasks(id_task: usize, file: &mut File, name_file: &String) {
-    let (mut vector_tasks, _) = read_file(name_file);
-    for task in &mut vector_tasks {
-        if task.id == id_task {
-            task.status = StatusTaks::Done;
-            task.update_at = Utc::now();
-        }
-    }
-    {
-        truncate_file(search_path_absolute(name_file));
-    };
-    save_tasks(vector_tasks, file);
-}
-
-fn mark_in_progress_tasks(id_task: usize, file: &mut File, name_file: &String) {
-    let (mut vector_tasks, _) = read_file(name_file);
-    for task in &mut vector_tasks {
-        if task.id == id_task {
-            task.status = StatusTaks::InProgress;
-            task.update_at = Utc::now();
-        }
-    }
-    {
-        truncate_file(search_path_absolute(name_file));
-    };
-    save_tasks(vector_tasks, file);
-}
-
-fn mark_todo_tasks(id_task: usize, file: &mut File, name_file: &String) {
-    let (mut vector_tasks, _) = read_file(name_file);
-    for task in &mut vector_tasks {
-        if task.id == id_task {
-            task.status = StatusTaks::Todo;
-            task.update_at = Utc::now();
-        }
-    }
-    {
-        truncate_file(search_path_absolute(&name_file));
-    };
-    save_tasks(vector_tasks, file);
-}
-
-fn save_tasks(tasks: Vec<Todo>, file: &mut File) {
-    let json_sase = serde_json::to_string(&tasks).unwrap();
-    file.write_all(json_sase.as_bytes()).unwrap()
-}
-
-fn create_struct_task(description_todo: &String, name_file: String) -> Vec<Todo> {
-    let utc: DateTime<Utc> = Utc::now();
-    let (mut vector_tasks, size_vector) = read_file(&name_file);
-    let id_task: usize = create_id_task(&vector_tasks, size_vector);
-    let todo_one: Todo = Todo {
-        id: id_task,
-        description: description_todo.to_string(),
-        status: StatusTaks::Todo,
-        create_at: utc,
-        update_at: utc,
-    };
-    vector_tasks.push(todo_one);
-    vector_tasks
-}
-
-fn read_file(name_file: &String) -> (Vec<Todo>, u64) {
-    let mut vector_tasks: Vec<Todo> = Vec::new();
-    let path_absolut = search_path_absolute(&name_file);
-    let metadata = fs::metadata(&path_absolut).unwrap();
-    if metadata.len() == 0 {
-        (vector_tasks, 0)
-    } else {
-        let read_files = fs::read_to_string(&path_absolut).unwrap();
-        vector_tasks = serde_json::from_str(&read_files).unwrap();
-        (vector_tasks, metadata.len())
     }
 }

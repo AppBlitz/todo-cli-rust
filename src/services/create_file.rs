@@ -1,5 +1,5 @@
 use std::{
-    fs::{File, OpenOptions, exists, remove_file},
+    fs::{File, OpenOptions, exists},
     path::{PathBuf, absolute},
 };
 pub fn create_file(name_file: &String) -> File {
@@ -37,10 +37,4 @@ pub fn open_file(path_file: PathBuf) -> File {
         .write(true)
         .open(path_file)
         .unwrap()
-}
-
-pub fn search_file() {}
-
-pub fn delete_file(name_file: &String) {
-    remove_file(name_file).unwrap()
 }
